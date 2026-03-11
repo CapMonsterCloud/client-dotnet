@@ -1,16 +1,15 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
-namespace Zennolab.CapMonsterCloud.Responses
+namespace Zennolab.CapMonsterCloud.Responses;
+
+/// <summary>
+/// ImageToText recognition response
+/// </summary>
+public class ImageToTextResponse : CaptchaResponseBase
 {
     /// <summary>
-    /// ImageToText recognition response
+    /// Captcha answer
     /// </summary>
-    public class ImageToTextResponse : CaptchaResponseBase
-    {
-        /// <summary>
-        /// Captcha answer
-        /// </summary>
-        [JsonProperty("text")]
-        public string Value { get; set; }
-    }
+    [JsonPropertyName("text")]
+    public string? Value { get; set; }
 }

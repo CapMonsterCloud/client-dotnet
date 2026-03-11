@@ -1,24 +1,23 @@
-﻿namespace Zennolab.CapMonsterCloud.Responses
+namespace Zennolab.CapMonsterCloud.Responses;
+
+/// <summary>
+/// Recognition captcha answer
+/// </summary>
+public class RecognitionAnswer
 {
     /// <summary>
-    /// Recognition captcha answer
+    /// Decimal answer
     /// </summary>
-    public class RecognitionAnswer
-    {
-        /// <summary>
-        /// Decimal answer
-        /// </summary>
-        public decimal[] NumericAnswer { get; set; }
+    public decimal[]? NumericAnswer { get; set; }
 
-        /// <summary>
-        /// Bool answer
-        /// </summary>
-        public bool[] GridAnswer { get; set; }
+    /// <summary>
+    /// Bool answer
+    /// </summary>
+    public bool[]? GridAnswer { get; set; }
 
-        /// <inheritdoc/>
-        public bool IsNumeric => NumericAnswer != null;
+    /// <inheritdoc/>
+    public bool IsNumeric => NumericAnswer is not null;
 
-        /// <inheritdoc/>
-        public bool IsGrid => GridAnswer != null;
-    }
+    /// <inheritdoc/>
+    public bool IsGrid => GridAnswer is not null;
 }

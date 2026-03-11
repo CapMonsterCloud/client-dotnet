@@ -1,47 +1,46 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
-namespace Zennolab.CapMonsterCloud.Validation
+namespace Zennolab.CapMonsterCloud.Validation;
+
+internal static class TaskValidator
 {
-    internal static class TaskValidator
+    internal static void ValidateObjectIncludingInternals(object obj)
     {
-        internal static void ValidateObjectIncludingInternals(object obj)
+        var results = new List<ValidationResult>();
+
+        var properties = obj.GetType()
+            .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            .Where(p => p.GetCustomAttributes(typeof(ValidationAttribute), true).Any())
+            .ToList();
+
+        foreach (var property in properties)
         {
-            var results = new List<ValidationResult>();
+            var value = property.GetValue(obj);
+            var attributes = property.GetCustomAttributes(typeof(ValidationAttribute), true)
+                .Cast<ValidationAttribute>();
 
-            var properties = obj.GetType()
-                .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(p => p.GetCustomAttributes(typeof(ValidationAttribute), true).Any())
-                .ToList();
-
-            foreach (var property in properties)
+            foreach (var attribute in attributes)
             {
-                var value = property.GetValue(obj);
-                var attributes = property.GetCustomAttributes(typeof(ValidationAttribute), true)
-                    .Cast<ValidationAttribute>();
-
-                foreach (var attribute in attributes)
+                var context = new ValidationContext(obj)
                 {
-                    var context = new ValidationContext(obj)
-                    {
-                        MemberName = property.Name
-                    };
+                    MemberName = property.Name
+                };
 
-                    var result = attribute.GetValidationResult(value, context);
-                    if (result != ValidationResult.Success)
-                    {
-                        results.Add(result);
-                    }
+                var result = attribute.GetValidationResult(value, context);
+                if (result is not null && result != ValidationResult.Success)
+                {
+                    results.Add(result);
                 }
             }
+        }
 
-            if (results.Any())
-            {
-                throw new AggregateException(results.Select(r => new ValidationException(r.ErrorMessage)));
-            }
+        if (results.Count > 0)
+        {
+            throw new AggregateException(results.Select(r => new ValidationException(r.ErrorMessage)));
         }
     }
 }

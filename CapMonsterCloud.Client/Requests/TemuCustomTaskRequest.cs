@@ -1,41 +1,40 @@
-﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace Zennolab.CapMonsterCloud.Requests
+namespace Zennolab.CapMonsterCloud.Requests;
+
+/// <summary>
+/// Temu CustomTask recognition request.
+/// </summary>
+/// <example>
+/// https://docs.capmonster.cloud/docs/captchas/temu-task
+/// </example>
+public sealed class TemuCustomTaskRequest : CustomTaskRequestBase
 {
+    /// <inheritdoc/>
+    public override string Class => "Temu";
+
     /// <summary>
-    /// Temu CustomTask recognition request.
+    /// Initializes Temu task with required metadata.
     /// </summary>
-    /// <example>
-    /// https://docs.capmonster.cloud/docs/captchas/temu-task
-    /// </example>
-    public sealed class TemuCustomTaskRequest : CustomTaskRequestBase
+    /// <param name="cookie">
+    /// Cookies string from the page with captcha (document.cookie).
+    /// </param>
+    public TemuCustomTaskRequest(string cookie)
     {
-        /// <inheritdoc/>
-        public override string Class => "Temu";
-
-        /// <summary>
-        /// Initializes Temu task with required metadata.
-        /// </summary>
-        /// <param name="cookie">
-        /// Cookies string from the page with captcha (document.cookie).
-        /// </param>
-        public TemuCustomTaskRequest(string cookie)
-        {
-            Metadata = new { cookie };
-        }
-
-        /// <summary>
-        /// The full URL of the page where the CAPTCHA is loaded.
-        /// </summary>
-        [JsonProperty("websiteURL", Required = Required.Always)]
-        [Url]
-        public new string WebsiteUrl
-        {
-            get => base.WebsiteUrl;
-            set => base.WebsiteUrl = value;
-        }
-
-        // userAgent, Proxy, Domains — уже есть в базе (CustomTaskRequestBase)
+        Metadata = new { cookie };
     }
+
+    /// <summary>
+    /// The full URL of the page where the CAPTCHA is loaded.
+    /// </summary>
+    [JsonPropertyName("websiteURL")]
+    [Url]
+    public new string WebsiteUrl
+    {
+        get => base.WebsiteUrl;
+        set => base.WebsiteUrl = value;
+    }
+
+    // userAgent, Proxy, Domains — уже есть в базе (CustomTaskRequestBase)
 }

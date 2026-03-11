@@ -1,43 +1,42 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace Zennolab.CapMonsterCloud.Responses
+namespace Zennolab.CapMonsterCloud.Responses;
+
+/// <summary>
+/// Response for custom tasks
+/// </summary>
+public class CustomTaskResponse : CaptchaResponseBase
 {
-    /// <summary>
-    /// Response for custom tasks
-    /// </summary>
-    public class CustomTaskResponse : CaptchaResponseBase
+    /// <inheritdoc/>
+    public sealed class DomainInfo
     {
         /// <inheritdoc/>
-        public sealed class DomainInfo
-        {
-            /// <inheritdoc/>
-            [JsonProperty("cookies")]
-            public Dictionary<string, string> Cookies { get; set; }
-
-            /// <inheritdoc/>
-            [JsonProperty("localStorage")]
-            public Dictionary<string, string> LocalStorage { get; set; }
-        }
+        [JsonPropertyName("cookies")]
+        public Dictionary<string, string>? Cookies { get; set; }
 
         /// <inheritdoc/>
-        [JsonProperty("domains")]
-        public Dictionary<string, DomainInfo> Domains { get; set; }
-
-        /// <inheritdoc/>
-        [JsonProperty("url")]
-        public string Url { get; set; }
-
-        /// <inheritdoc/>
-        [JsonProperty("fingerprint")]
-        public Dictionary<string, string> Fingerprint { get; set; }
-
-        /// <inheritdoc/>
-        [JsonProperty("headers")]
-        public Dictionary<string, string> Headers { get; set; }
-
-        /// <inheritdoc/>
-        [JsonProperty("data")]
-        public Dictionary<string, string> Data;
+        [JsonPropertyName("localStorage")]
+        public Dictionary<string, string>? LocalStorage { get; set; }
     }
+
+    /// <inheritdoc/>
+    [JsonPropertyName("domains")]
+    public Dictionary<string, DomainInfo>? Domains { get; set; }
+
+    /// <inheritdoc/>
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    /// <inheritdoc/>
+    [JsonPropertyName("fingerprint")]
+    public Dictionary<string, string>? Fingerprint { get; set; }
+
+    /// <inheritdoc/>
+    [JsonPropertyName("headers")]
+    public Dictionary<string, string>? Headers { get; set; }
+
+    /// <inheritdoc/>
+    [JsonPropertyName("data")]
+    public Dictionary<string, string>? Data;
 }

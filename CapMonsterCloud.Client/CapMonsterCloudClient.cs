@@ -1,215 +1,195 @@
-﻿using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Zennolab.CapMonsterCloud.Requests;
 using Zennolab.CapMonsterCloud.Responses;
 using Zennolab.CapMonsterCloud.Validation;
 
-namespace Zennolab.CapMonsterCloud
+namespace Zennolab.CapMonsterCloud;
+
+/// <summary>
+/// capmonster.cloud Client
+/// </summary>
+public partial class CapMonsterCloudClient(ClientOptions options, HttpClient httpClient) : ICapMonsterCloudClient
 {
-    /// <summary>
-    /// capmonster.cloud Client
-    /// </summary>
-    public partial class CapMonsterCloudClient : ICapMonsterCloudClient
+    private const string TaskReady = "ready";
+
+    private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        private const string TaskReady = "ready";
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
-        private readonly ClientOptions _options;
+    internal HttpClient HttpClient { get; } = httpClient;
 
-        /// <summary>
-        /// Creates new capmonster.cloud Client
-        /// </summary>
-        /// <param name="options">client options</param>
-        /// <param name="httpClient"></param>
-        public CapMonsterCloudClient(ClientOptions options, HttpClient httpClient)
+    /// <inheritdoc/>
+    /// <exception cref="HttpRequestException">exception on processing HTTP request to capmonster.cloud</exception>
+    public async Task<decimal> GetBalanceAsync(CancellationToken cancellationToken)
+    {
+        var response = await HttpClient.PostAsync(
+            "getBalance",
+            new StringContent(ToJson(
+                new { clientKey = options.ClientKey })),
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
         {
-            _options = options;
-
-            HttpClient = httpClient;
+            throw new HttpRequestException($"Cannot get balance. Status code was {response.StatusCode}");
         }
 
-        internal HttpClient HttpClient { get; }
+        var responseBody = await response.Content.ReadAsStringAsync();
 
-        /// <inheritdoc/>
-        /// <exception cref="HttpRequestException">exception on processing HTTP request to capmonster.cloud</exception>
-        public async Task<decimal> GetBalanceAsync(CancellationToken cancellationToken)
+        var result = FromJson<GetBalanceResponse>(responseBody)
+            ?? throw new HttpRequestException($"Cannot parse get balance response. Response was: {responseBody}");
+
+        if (result.ErrorId != 0)
         {
-            var response = await HttpClient.PostAsync(
-                "getBalance",
-                new StringContent(ToJson(
-                    new { clientKey = _options.ClientKey })),
-                cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"Cannot get balance. Status code was {response.StatusCode}");
-            }
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            var result = FromJson<GetBalanceResponse>(responseBody);
-            if (result == null)
-            {
-                throw new HttpRequestException($"Cannot parse get balance response. Response was: {responseBody}");
-            }
-
-            if (result.errorId != 0)
-            {
-                throw new GetBalanceException(ToErrorType(result.errorCode));
-            }
-
-            return result.balance;
+            throw new GetBalanceException(ToErrorType(result.ErrorCode));
         }
 
-        /// <inheritdoc/>
-        /// <exception cref="ValidationException">malformed task object</exception>
-        /// <exception cref="HttpRequestException">exception on processing HTTP request to capmonster.cloud</exception>
-        public async Task<CaptchaResult<TSolution>> SolveAsync<TSolution>(
-            CaptchaRequestBase<TSolution> task,
-            CancellationToken cancellationToken) where TSolution : CaptchaResponseBase
+        return result.Balance;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ValidationException">malformed task object</exception>
+    /// <exception cref="HttpRequestException">exception on processing HTTP request to capmonster.cloud</exception>
+    public async Task<CaptchaResult<TSolution>> SolveAsync<TSolution>(
+        CaptchaRequestBase<TSolution> task,
+        CancellationToken cancellationToken) where TSolution : CaptchaResponseBase
+    {
+        ValidateTask<CaptchaRequestBase<TSolution>, TSolution>(task);
+
+        var createdTask = await CreateTask(task, cancellationToken);
+        if (createdTask.ErrorId != 0)
         {
-            ValidateTask<CaptchaRequestBase<TSolution>, TSolution>(task);
+            return new CaptchaResult<TSolution> { Error = ToErrorType(createdTask.ErrorCode) };
+        }
 
-            var createdTask = await CreateTask(task, cancellationToken);
-            if (createdTask.errorId != 0)
+        var getResultTimeouts = GetTimeouts(task.GetType());
+
+        using var getResultTimeoutCts = new CancellationTokenSource(getResultTimeouts.Timeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, getResultTimeoutCts.Token);
+
+        var firstRequestDelay = (task.UseNoCache ? getResultTimeouts.FirstRequestNoCacheDelay : null)
+            ?? getResultTimeouts.FirstRequestDelay;
+        await Task.Delay(firstRequestDelay, linkedCts.Token);
+
+        while (!linkedCts.IsCancellationRequested)
+        {
+            try
             {
-                return new CaptchaResult<TSolution> { Error = ToErrorType(createdTask.errorCode) };
-            }
+                var result = await GetTaskResult(createdTask.TaskId, linkedCts.Token);
 
-            var getResultTimeouts = GetTimeouts(task.GetType());
-
-            using (var getResultTimeoutCts = new CancellationTokenSource(getResultTimeouts.Timeout))
-            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, getResultTimeoutCts.Token))
-            {
-                TimeSpan firstRequestDelay = (task.UseNoCache ? getResultTimeouts.FirstRequestNoCacheDelay : null)
-                    ?? getResultTimeouts.FirstRequestDelay;
-                await Task.Delay(firstRequestDelay, linkedCts.Token);
-
-                while (!linkedCts.IsCancellationRequested)
+                switch (result)
                 {
-                    try
-                    {
-                        var result = await GetTaskResult(createdTask.taskId, linkedCts.Token);
-                        switch (result)
-                        {
-                            case TaskResult.TaskFailed failed:
-                                return new CaptchaResult<TSolution> { Error = failed.Error };
-                            case TaskResult.TaskCompleted completed:
-                                return new CaptchaResult<TSolution> { Solution = CastSolution<TSolution>(completed.Solution) };
-                            case TaskResult.TaskInProgress inProgress:
-                            default:
-                                break;
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        if (getResultTimeoutCts.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        throw;
-                    }
-
-                    await Task.Delay(getResultTimeouts.RequestsInterval, linkedCts.Token);
+                    case TaskResult.TaskFailed failed:
+                        return new CaptchaResult<TSolution> { Error = failed.Error };
+                    case TaskResult.TaskCompleted completed:
+                        return new CaptchaResult<TSolution> { Solution = CastSolution<TSolution>(completed.Solution) };
                 }
             }
+            catch (OperationCanceledException)
+            {
+                if (getResultTimeoutCts.IsCancellationRequested)
+                {
+                    break;
+                }
 
-            return new CaptchaResult<TSolution> { Error = ErrorType.Timeout };
+                throw;
+            }
+
+            await Task.Delay(getResultTimeouts.RequestsInterval, linkedCts.Token);
         }
 
-        private void ValidateTask<TTask, TSolution>(TTask task) where TTask : CaptchaRequestBase<TSolution> where TSolution : CaptchaResponseBase
-            => TaskValidator.ValidateObjectIncludingInternals(task);
+        return new CaptchaResult<TSolution> { Error = ErrorType.Timeout };
+    }
 
-        private async Task<CreateTaskResponse> CreateTask<TSolution>(CaptchaRequestBase<TSolution> task, CancellationToken cancellationToken) where TSolution : CaptchaResponseBase
+    private static void ValidateTask<TTask, TSolution>(TTask task) where TTask : CaptchaRequestBase<TSolution> where TSolution : CaptchaResponseBase
+        => TaskValidator.ValidateObjectIncludingInternals(task);
+
+    private async Task<CreateTaskResponse> CreateTask<TSolution>(CaptchaRequestBase<TSolution> task, CancellationToken cancellationToken) where TSolution : CaptchaResponseBase
+    {
+        var body = ToJson(
+            new CreateTaskRequest<TSolution>
+            {
+                ClientKey = options.ClientKey,
+                Task = task,
+                SoftId = options.SoftId ?? ClientOptions.DefaultSoftId
+            });
+
+        var response = await HttpClient.PostAsync("createTask", new StringContent(body), cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var body = ToJson(
-                new CreateTaskRequest<TSolution>
-                {
-                    clientKey = _options.ClientKey,
-                    task = task,
-                    softId = _options.SoftId ?? ClientOptions.DefaultSoftId
-                });
-
-            var response = await HttpClient.PostAsync("createTask", new StringContent(body), cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"Cannot create task. Status code was {response.StatusCode}");
-            }
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            var result = FromJson<CreateTaskResponse>(responseBody);
-            if (result == null)
-            {
-                throw new HttpRequestException($"Cannot parse create task response. Response was: {responseBody}");
-            }
-
-            return result;
+            throw new HttpRequestException($"Cannot create task. Status code was {response.StatusCode}");
         }
 
-        private async Task<TaskResult> GetTaskResult(int taskId, CancellationToken cancellationToken)
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        return FromJson<CreateTaskResponse>(responseBody)
+            ?? throw new HttpRequestException($"Cannot parse create task response. Response was: {responseBody}");
+    }
+
+    private async Task<TaskResult> GetTaskResult(int taskId, CancellationToken cancellationToken)
+    {
+        var body = ToJson(
+            new
+            {
+                clientKey = options.ClientKey,
+                taskId
+            });
+
+        var response = await HttpClient.PostAsync("getTaskResult", new StringContent(body), cancellationToken);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
         {
-            var body = ToJson(
-                new
-                {
-                    clientKey = _options.ClientKey,
-                    taskId
-                });
-
-            var response = await HttpClient.PostAsync("getTaskResult", new StringContent(body), cancellationToken);
-
-            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
-            {
-                return TaskResult.InProgress;
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"Cannot get task result. Status code was {response.StatusCode}");
-            }
-
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            var result = FromJson<GetTaskResultResponse>(responseBody);
-            if (result == null)
-            {
-                throw new HttpRequestException($"Cannot parse get task result response. Response was: {responseBody}");
-            }
-
-            if (result.errorId != 0)
-            {
-                if ("CAPTCHA_NOT_READY".Equals(result.errorCode, StringComparison.OrdinalIgnoreCase))
-                {
-                    return TaskResult.InProgress;
-                }
-                else
-                {
-                    return TaskResult.Failed(ToErrorType(result.errorCode));
-                }
-            }
-
-            if (TaskReady.Equals(result.status, StringComparison.OrdinalIgnoreCase))
-            {
-                return TaskResult.Completed(result.solution);
-            }
-
             return TaskResult.InProgress;
         }
 
-        private static TSolution CastSolution<TSolution>(object solution)
-            => FromJson<TSolution>(solution.ToString());
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException($"Cannot get task result. Status code was {response.StatusCode}");
+        }
 
-        private static ErrorType ToErrorType(string errorCode)
-            => ErrorCodeConverter.Convert(errorCode);
+        var responseBody = await response.Content.ReadAsStringAsync();
 
-        private static string ToJson(object data)
-            => JsonConvert.SerializeObject(data, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        var result = FromJson<GetTaskResultResponse>(responseBody)
+            ?? throw new HttpRequestException($"Cannot parse get task result response. Response was: {responseBody}");
 
-        private static TOut FromJson<TOut>(string json)
-            => JsonConvert.DeserializeObject<TOut>(json);
+        if (result.ErrorId != 0)
+        {
+            return "CAPTCHA_NOT_READY".Equals(result.ErrorCode, StringComparison.OrdinalIgnoreCase)
+                ? TaskResult.InProgress
+                : TaskResult.Failed(ToErrorType(result.ErrorCode));
+        }
+
+        if (TaskReady.Equals(result.Status, StringComparison.OrdinalIgnoreCase))
+        {
+            return TaskResult.Completed(result.Solution);
+        }
+
+        return TaskResult.InProgress;
     }
+
+    private static TSolution CastSolution<TSolution>(object? solution)
+    {
+        var json = solution is JsonElement element
+            ? element.GetRawText()
+            : solution?.ToString() ?? "{}";
+
+        return FromJson<TSolution>(json)
+            ?? throw new JsonException($"Cannot deserialize solution to {typeof(TSolution).Name}");
+    }
+
+    private static ErrorType ToErrorType(string? errorCode)
+        => ErrorCodeConverter.Convert(errorCode);
+
+    internal static string ToJson(object data)
+        => JsonSerializer.Serialize(data, data.GetType(), SerializerOptions);
+
+    internal static TOut? FromJson<TOut>(string json)
+        => JsonSerializer.Deserialize<TOut>(json, SerializerOptions);
 }
