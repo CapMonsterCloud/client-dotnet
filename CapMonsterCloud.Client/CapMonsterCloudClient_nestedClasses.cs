@@ -1,86 +1,71 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Zennolab.CapMonsterCloud.Responses;
 
-namespace Zennolab.CapMonsterCloud
+namespace Zennolab.CapMonsterCloud;
+
+public partial class CapMonsterCloudClient
 {
-    public partial class CapMonsterCloudClient
+    private class ResponseBase
     {
-        private class ResponseBase
-        {
-#pragma warning disable IDE1006 // Naming Styles
-            public int errorId { get; set; }
+        [JsonPropertyName("errorId")]
+        public int ErrorId { get; set; }
 
-            public string errorCode { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
+        [JsonPropertyName("errorCode")]
+        public string? ErrorCode { get; set; }
+    }
+
+    private class GetBalanceResponse : ResponseBase
+    {
+        [JsonPropertyName("balance")]
+        public decimal Balance { get; set; }
+    }
+
+    private class CreateTaskResponse : ResponseBase
+    {
+        [JsonPropertyName("taskId")]
+        public int TaskId { get; set; }
+    }
+
+    private class GetTaskResultResponse : ResponseBase
+    {
+        [JsonPropertyName("status")]
+        public string? Status { get; set; }
+
+        [JsonPropertyName("solution")]
+        public object? Solution { get; set; }
+    }
+
+    private abstract class TaskResult
+    {
+        public class TaskInProgress : TaskResult;
+
+        public class TaskFailed(ErrorType error) : TaskResult
+        {
+            public ErrorType Error { get; } = error;
         }
 
-        private class GetBalanceResponse : ResponseBase
+        public class TaskCompleted(object? solution) : TaskResult
         {
-#pragma warning disable IDE1006 // Naming Styles
-            public decimal balance { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
+            public object? Solution { get; } = solution;
         }
 
-        private class CreateTaskResponse : ResponseBase
-        {
-#pragma warning disable IDE1006 // Naming Styles
-            public int taskId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
-        }
+        public static TaskInProgress InProgress { get; } = new();
 
-        private class GetTaskResultResponse : ResponseBase
-        {
-#pragma warning disable IDE1006 // Naming Styles
-            public string status { get; set; }
+        public static TaskFailed Failed(ErrorType error) => new(error);
 
-            public object solution { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
-        }
+        public static TaskCompleted Completed(object? solution) => new(solution);
+    }
 
-        private abstract class TaskResult
-        {
-            public class TaskInProgress : TaskResult
-            {
-            }
+    private class CreateTaskRequest<TSolution> where TSolution : CaptchaResponseBase
+    {
+        [JsonPropertyName("clientKey")]
+        public string? ClientKey { get; set; }
 
-            public class TaskFailed : TaskResult
-            {
-                public TaskFailed(ErrorType error)
-                {
-                    this.Error = error;
+        [JsonPropertyName("task")]
+        public Requests.CaptchaRequestBase<TSolution>? Task { get; set; }
 
-                }
-
-                public ErrorType Error { get; }
-            }
-
-            public class TaskCompleted : TaskResult
-            {
-                public TaskCompleted(object solution)
-                {
-                    this.Solution = solution;
-                }
-
-                public object Solution { get; }
-            }
-
-            public static TaskInProgress InProgress { get; } = new TaskInProgress();
-
-            public static TaskFailed Failed(ErrorType error) => new TaskFailed(error);
-
-            public static TaskCompleted Completed(object solution) => new TaskCompleted(solution);
-        }
-
-        private class CreateTaskRequest<TSolution> where TSolution : CaptchaResponseBase
-        {
-#pragma warning disable IDE1006 // Naming Styles
-            public string clientKey { get; set; }
-
-            public Requests.CaptchaRequestBase<TSolution> task { get; set; }
-
-            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            public int? softId { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
-        }
+        [JsonPropertyName("softId")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? SoftId { get; set; }
     }
 }

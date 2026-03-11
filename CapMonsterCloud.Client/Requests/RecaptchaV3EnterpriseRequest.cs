@@ -5,34 +5,33 @@ using Zennolab.CapMonsterCloud.Responses;
 namespace Zennolab.CapMonsterCloud.Requests;
 
 /// <summary>
-/// Recaptcha V3 recognition request (without proxy).
+/// reCAPTCHA v3 Enterprise recognition request.
+/// The task is executed through CapMonster Cloud's own proxy servers (no user proxy needed).
 /// </summary>
 /// <example>
-/// https://zenno.link/doc-recaptcha3-en
+/// https://docs.capmonster.cloud/docs/captchas/recaptcha-v3-enterprise-task/
 /// </example>
-public sealed class RecaptchaV3ProxylessRequest : CaptchaRequestBase<RecaptchaV3Response>
+public sealed class RecaptchaV3EnterpriseRequest : CaptchaRequestBase<RecaptchaV3EnterpriseResponse>
 {
     /// <summary>
     /// Recognition task type
     /// </summary>
-    public const string TaskType = "RecaptchaV3TaskProxyless";
+    public const string TaskType = "RecaptchaV3EnterpriseTask";
 
     /// <inheritdoc/>
     [JsonPropertyName("type")]
     public override string Type => TaskType;
 
     /// <summary>
-    /// Address of a webpage with Google ReCaptcha
+    /// Address of a webpage with Google reCAPTCHA Enterprise.
     /// </summary>
     [JsonPropertyName("websiteURL")]
     [Url]
     public string WebsiteUrl { get; set; } = null!;
 
     /// <summary>
-    /// Recaptcha website key.
-    /// <![CDATA[
-    /// <div class="g-recaptcha" data-sitekey="THAT_ONE"></div>
-    /// ]]>
+    /// The reCAPTCHA v3 Enterprise site key on the target page.
+    /// <![CDATA[https://www.google.com/recaptcha/enterprise.js?render=THIS_ONE]]>
     /// </summary>
     [JsonPropertyName("websiteKey")]
     [StringLength(int.MaxValue, MinimumLength = 1)]
@@ -46,13 +45,12 @@ public sealed class RecaptchaV3ProxylessRequest : CaptchaRequestBase<RecaptchaV3
     public double MinScore { get; set; }
 
     /// <summary>
-    /// Widget action value.
-    /// Website owner defines what user is doing on the page through this parameter.
+    /// The action parameter value passed by the reCAPTCHA widget to Google,
+    /// which is visible to the site owner during server-side verification.
     /// Default value: verify
     /// </summary>
     /// <example>
-    /// <![CDATA[
-    /// grecaptcha.execute('site_key', {action:'login_test'})]]>
+    /// <![CDATA[grecaptcha.enterprise.execute('site_key', {action:'login_test'})]]>
     /// </example>
     [JsonPropertyName("pageAction")]
     public string PageAction { get; set; } = "verify";

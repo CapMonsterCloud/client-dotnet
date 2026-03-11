@@ -1,85 +1,84 @@
-﻿using FluentAssertions;
-using Newtonsoft.Json;
+using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Zennolab.CapMonsterCloud.Requests;
 
-namespace Zennolab.CapMonsterCloud.Client
+namespace Zennolab.CapMonsterCloud.Client;
+
+public class JsonConverterTests
 {
-    public class JsonConverterTests
+    [Test]
+    public void NumericFlagConverter_ShouldDeserialize([Values] bool numeric)
     {
-        [Test]
-        public void NumericFlagConverter_ShouldDeserialize([Values] bool numeric)
+        // Arrange
+        var request = new ImageToTextRequest
         {
-            // Arrange
-            var request = new ImageToTextRequest
+            Body = "some base64 body",
+            CapMonsterModule = CapMonsterModules.YandexWave,
+            CaseSensitive = true,
+            Numeric = numeric,
+            RecognizingThreshold = 65,
+            Math = false
+        };
+
+        var target = CapMonsterCloudClient.ToJson(request);
+
+        // Act
+        var actual = CapMonsterCloudClient.FromJson<ImageToTextRequest>(target);
+
+        // Assert
+        _ = actual!.Numeric.Should().Be(request.Numeric);
+    }
+
+    [Test]
+    public void DictionaryToSemicolonSplittedStringConverter_ShouldDeserialize()
+    {
+        // Arrange
+        var request = new HCaptchaRequest()
+        {
+            WebsiteUrl = "https://lessons.zennolab.com/captchas/hcaptcha/?level=easy",
+            WebsiteKey = "472fc7af-86a4-4382-9a49-ca9090474471",
+            Invisible = false,
+            Data = "some data",
+            Cookies = new Dictionary<string, string>
             {
-                Body = "some base64 body",
-                CapMonsterModule = CapMonsterModules.YandexWave,
-                CaseSensitive = true,
-                Numeric = numeric,
-                RecognizingThreshold = 65,
-                Math = false
-            };
+                { "cookieA", "value#A" },
+                { "cookieB", "value#B" }
+            }
+        };
 
-            var target = JsonConvert.SerializeObject(request);
+        var target = CapMonsterCloudClient.ToJson(request);
 
-            // Act
-            var actual = JsonConvert.DeserializeObject<ImageToTextRequest>(target);
+        // Act
+        var actual = CapMonsterCloudClient.FromJson<HCaptchaRequest>(target);
 
-            // Assert
-            _ = actual!.Numeric.Should().Be(request.Numeric);
-        }
+        // Assert
+        _ = actual!.Cookies.Should().ContainKeys(request.Cookies.Keys);
+        _ = actual.Cookies.Should().ContainValues(request.Cookies.Values);
+    }
 
-        [Test]
-        public void DictionaryToSemicolonSplittedStringConverter_ShouldDeserialize()
-        {
-            // Arrange
-            var request = new HCaptchaRequest()
+    [Test]
+    public void DictionaryToSemicolonSplittedStringConverter_ShouldThrowJsonException()
+    {
+        // Arrange
+        var target = JsonSerializer.Serialize(
+            new
             {
-                WebsiteUrl = "https://lessons.zennolab.com/captchas/hcaptcha/?level=easy",
-                WebsiteKey = "472fc7af-86a4-4382-9a49-ca9090474471",
-                Invisible = false,
-                Data = "some data",
-                Cookies = new Dictionary<string, string>
-                {
-                    { "cookieA", "value#A" },
-                    { "cookieB", "value#B" }
-                }
-            };
+                type = "HCaptchaTask",
+                websiteURL = "https://lessons.zennolab.com/captchas/hcaptcha/?level=easy",
+                websiteKey = "472fc7af-86a4-4382-9a49-ca9090474471",
+                isInvisible = false,
+                data = "some data",
+                userAgent = "PostmanRuntime/7.29.0",
+                cookies = "some invalid cookie string"
+            });
 
-            var target = JsonConvert.SerializeObject(request);
+        // Act
+        Func<HCaptchaRequest?> act = () => CapMonsterCloudClient.FromJson<HCaptchaRequest>(target);
 
-            // Act
-            var actual = JsonConvert.DeserializeObject<HCaptchaRequest>(target);
-
-            // Assert
-            _ = actual!.Cookies.Should().ContainKeys(request.Cookies.Keys);
-            _ = actual.Cookies.Should().ContainValues(request.Cookies.Values);
-        }
-
-        [Test]
-        public void DictionaryToSemicolonSplittedStringConverter_ShouldThrowJsonReaderException()
-        {
-            // Arrange
-            var target = JsonConvert.SerializeObject(
-                new
-                {
-                    type = "HCaptchaTask",
-                    websiteURL = "https://lessons.zennolab.com/captchas/hcaptcha/?level=easy",
-                    websiteKey = "472fc7af-86a4-4382-9a49-ca9090474471",
-                    isInvisible = false,
-                    data = "some data",
-                    userAgent = "PostmanRuntime/7.29.0",
-                    cookies = "some invalid cookie string"
-                });
-
-            // Act
-            Func<HCaptchaRequest> act = () => JsonConvert.DeserializeObject<HCaptchaRequest>(target)!;
-
-            // Assert
-            _ = act.Should().Throw<JsonReaderException>();
-        }
+        // Assert
+        _ = act.Should().Throw<JsonException>();
     }
 }

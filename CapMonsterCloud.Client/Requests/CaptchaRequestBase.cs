@@ -1,18 +1,17 @@
-﻿using Zennolab.CapMonsterCloud.Responses;
+using Zennolab.CapMonsterCloud.Responses;
 
-namespace Zennolab.CapMonsterCloud.Requests
-{    
+namespace Zennolab.CapMonsterCloud.Requests;
+
+/// <summary>
+/// Base captcha recognition request
+/// </summary>
+public abstract class CaptchaRequestBase<TResponse> where TResponse : CaptchaResponseBase
+{
     /// <summary>
-    /// Base captcha recognition request
+    /// Gets recognition task type
     /// </summary>
-    public abstract class CaptchaRequestBase<TResponse> where TResponse : CaptchaResponseBase
-    {        
-        /// <summary>
-        /// Gets recognition task type
-        /// </summary>
-        public abstract string Type { get; }
+    public abstract string Type { get; }
 
 
-        internal virtual bool UseNoCache => false;
-    }
+    internal virtual bool UseNoCache => false;
 }

@@ -1,27 +1,28 @@
-﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace Zennolab.CapMonsterCloud.Responses
+namespace Zennolab.CapMonsterCloud.Responses;
+
+/// <summary>
+/// AmazonWaf recognition response
+/// </summary>
+public sealed class AmazonWafResponse : CaptchaResponseBase
 {
-    /// <summary>
-    /// AmazonWaf recognition response
-    /// </summary>
-    public sealed class AmazonWafResponse : CaptchaResponseBase
-    {
-        /// <inheritdoc/>
-        [JsonProperty("captcha_voucher")]
-        public string CaptchaVoucher { get; set; }
+    /// <inheritdoc/>
+    [JsonPropertyName("captcha_voucher")]
+    public string? CaptchaVoucher { get; set; }
 
-        /// <inheritdoc/>
-        [JsonProperty("existing_token")]
-        public string ExistingToken { get; set; }
+    /// <inheritdoc/>
+    [JsonPropertyName("existing_token")]
+    public string? ExistingToken { get; set; }
 
-        /// <inheritdoc/>
-        [JsonProperty("cookies", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, string> Cookies { get; set; }
+    /// <inheritdoc/>
+    [JsonPropertyName("cookies")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, string>? Cookies { get; set; }
 
-        /// <inheritdoc/>
-        [JsonProperty("userAgent", NullValueHandling = NullValueHandling.Ignore)]
-        public string UserAgent { get; set; }
-    }
+    /// <inheritdoc/>
+    [JsonPropertyName("userAgent")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? UserAgent { get; set; }
 }

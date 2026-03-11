@@ -1,72 +1,71 @@
-﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Zennolab.CapMonsterCloud.Responses;
 
-namespace Zennolab.CapMonsterCloud.Requests
+namespace Zennolab.CapMonsterCloud.Requests;
+
+/// <summary>
+/// AmazonWaf recognition request.
+/// </summary>
+/// <example>
+/// https://docs.capmonster.cloud/docs/captchas/amazon-task
+/// </example>
+public class AmazonWafRequest : CaptchaRequestBaseWithProxy<AmazonWafResponse>
 {
     /// <summary>
-    /// AmazonWaf recognition request.
+    /// Recognition task type
     /// </summary>
-    /// <example>
-    /// https://docs.capmonster.cloud/docs/captchas/amazon-task
-    /// </example>
-    public class AmazonWafRequest : CaptchaRequestBaseWithProxy<AmazonWafResponse>
-    { 
-        /// <summary>
-        /// Recognition task type
-        /// </summary>
-        public const string TaskType = "AmazonTask";
+    public const string TaskType = "AmazonTask";
 
-        /// <inheritdoc/>
-        [JsonProperty("type", Required = Required.Always)]
-        public override sealed string Type => TaskType;
+    /// <inheritdoc/>
+    [JsonPropertyName("type")]
+    public override sealed string Type => TaskType;
 
-        /// <summary>
-        /// The address of the main page where captcha is solved.
-        /// </summary>
-        [JsonProperty("websiteURL", Required = Required.Always)]
-        [Url]
-        public string WebsiteUrl { get; set; }
+    /// <summary>
+    /// The address of the main page where captcha is solved.
+    /// </summary>
+    [JsonPropertyName("websiteURL")]
+    [Url]
+    public string WebsiteUrl { get; set; } = null!;
 
-        /// <summary>
-        /// A string that can be retrieved from an html page with a captcha or with javascript by executing the window.gokuProps.key
-        /// </summary>
-        [JsonProperty("websiteKey", Required = Required.Always)]
-        [StringLength(int.MaxValue, MinimumLength = 1)]
-        public string WebsiteKey { get; set; }
+    /// <summary>
+    /// A string that can be retrieved from an html page with a captcha or with javascript by executing the window.gokuProps.key
+    /// </summary>
+    [JsonPropertyName("websiteKey")]
+    [StringLength(int.MaxValue, MinimumLength = 1)]
+    public string WebsiteKey { get; set; } = null!;
 
-        /// <summary>
-        /// Link to challenge.js (see description below the table)
-        /// </summary>
-        [JsonProperty("challengeScript", Required = Required.Always)]
-        [StringLength(int.MaxValue, MinimumLength = 1)]
-        public string ChallengeScript { get; set; }
+    /// <summary>
+    /// Link to challenge.js (see description below the table)
+    /// </summary>
+    [JsonPropertyName("challengeScript")]
+    [StringLength(int.MaxValue, MinimumLength = 1)]
+    public string ChallengeScript { get; set; } = null!;
 
-        /// <summary>
-        /// Link to captcha.js (see description below the table)
-        /// </summary>
-        [JsonProperty("captchaScript", Required = Required.Always)]
-        [StringLength(int.MaxValue, MinimumLength = 1)]
-        public string CaptchaScript { get; set; }
+    /// <summary>
+    /// Link to captcha.js (see description below the table)
+    /// </summary>
+    [JsonPropertyName("captchaScript")]
+    [StringLength(int.MaxValue, MinimumLength = 1)]
+    public string CaptchaScript { get; set; } = null!;
 
-        /// <summary>
-        /// A string that can be retrieved from an html page with a captcha or with javascript by executing the window.gokuProps.context
-        /// </summary>
-        [JsonProperty("context", Required = Required.Always)]
-        [StringLength(int.MaxValue, MinimumLength = 1)]
-        public string Context { get; set; }
+    /// <summary>
+    /// A string that can be retrieved from an html page with a captcha or with javascript by executing the window.gokuProps.context
+    /// </summary>
+    [JsonPropertyName("context")]
+    [StringLength(int.MaxValue, MinimumLength = 1)]
+    public string Context { get; set; } = null!;
 
-        /// <summary>
-        /// A string that can be retrieved from an html page with a captcha or with javascript by executing the window.gokuProps.iv
-        /// </summary>
-        [JsonProperty("iv", Required = Required.Always)]
-        [StringLength(int.MaxValue, MinimumLength = 1)]
-        public string Iv { get; set; }
+    /// <summary>
+    /// A string that can be retrieved from an html page with a captcha or with javascript by executing the window.gokuProps.iv
+    /// </summary>
+    [JsonPropertyName("iv")]
+    [StringLength(int.MaxValue, MinimumLength = 1)]
+    public string Iv { get; set; } = null!;
 
-        /// <summary>
-        /// By default false. If you need to use cookies "aws-waf-token", specify the value true. Otherwise, what you will get in return is "captcha_voucher" and "existing_token".
-        /// </summary>
-        [JsonProperty("cookieSolution")]
-        public bool CookieSolution { get; set; }
-    }
+    /// <summary>
+    /// By default false. If you need to use cookies "aws-waf-token", specify the value true. Otherwise, what you will get in return is "captcha_voucher" and "existing_token".
+    /// </summary>
+    [JsonPropertyName("cookieSolution")]
+    public bool CookieSolution { get; set; }
 }

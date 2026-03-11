@@ -1,17 +1,20 @@
-﻿using Newtonsoft.Json;
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace Zennolab.CapMonsterCloud.Json
+namespace Zennolab.CapMonsterCloud.Json;
+
+internal sealed class NumericFlagConverter : JsonConverter<bool>
 {
-    internal sealed class NumericFlagConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-            => objectType == typeof(bool);
+    public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+        reader.TokenType switch
+        {
+            JsonTokenType.Number => reader.GetInt32() != 0,
+            JsonTokenType.True => true,
+            JsonTokenType.False => false,
+            _ => throw new JsonException($"Unexpected token type {reader.TokenType} for bool")
+        };
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
-            Convert.ToBoolean(reader.Value);
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) =>
-            writer.WriteValue((bool)value ? 1 : 0);
-    }
+    public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options) =>
+        writer.WriteNumberValue(value ? 1 : 0);
 }
