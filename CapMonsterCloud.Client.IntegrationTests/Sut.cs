@@ -110,6 +110,9 @@ namespace CapMonsterCloud.Client.IntegrationTests
         public async Task<CaptchaResult<YidunTaskResponse>> SolveAsync(
             YidunTaskRequest request) => await _cloudClient.SolveAsync<YidunTaskResponse>(request);
 
+        public async Task<CaptchaResult<CustomTaskResponse>> SolveAsync(
+            AltchaCustomTaskRequest request) => await _cloudClient.SolveAsync<CustomTaskResponse>(request);
+
         public async Task<decimal> GetBalanceAsync()
         {
             return await _cloudClient.GetBalanceAsync();
