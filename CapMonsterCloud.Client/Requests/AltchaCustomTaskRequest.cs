@@ -12,7 +12,7 @@ namespace Zennolab.CapMonsterCloud.Requests
     public sealed class AltchaCustomTaskRequest : CustomTaskRequestBase
     {
         /// <inheritdoc/>
-        public override string Class => "altcha";
+        public override string Class => "Altcha";
 
         /// <summary>
         /// For this task, sending an empty string is allowed.
