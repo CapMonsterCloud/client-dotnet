@@ -483,6 +483,133 @@ namespace CapMonsterCloud.Client.IntegrationTests
                     }
                 };
             }
+
+            public static AltchaCustomTaskRequest CreateAltchaTask()
+            {
+                return new AltchaCustomTaskRequest(Gen.RandomString(), Gen.RandomString(), Gen.RandomString(), Gen.RandomString())
+                {
+                    WebsiteKey = Gen.RandomGuid(),
+                    WebsiteUrl = Gen.RandomUri().ToString(),
+                    UserAgent = Gen.UserAgent(),
+                    Proxy = new ProxyContainer(Gen.RandomString(), Gen.RandomInt(0, 65535), Gen.RandomEnum<ProxyType>(), Gen.RandomString(), Gen.RandomString())
+                };
+            }
+
+            public static CaptchaResult<CustomTaskResponse> CreateAltchaSolution()
+            {
+                return new CaptchaResult<CustomTaskResponse>
+                {
+                    Error = null,
+                    Solution = new CustomTaskResponse
+                    {
+                        Data = new Dictionary<string, string>
+                        {
+                            { "token", Gen.RandomString() } ,
+                            { "number", Gen.RandomInt().ToString() }
+                        }
+                    }
+                };
+            }
+
+            public static CastleCustomTaskRequest CreateCastleTask()
+            {
+                return new CastleCustomTaskRequest(Gen.RandomUri().ToString(), Gen.RandomUri().ToString(), Gen.RandomInt(1, 49))
+                {
+                    WebsiteKey = Gen.RandomGuid(),
+                    WebsiteUrl = Gen.RandomUri().ToString(),
+                    UserAgent = Gen.UserAgent(),
+                    Proxy = new ProxyContainer(Gen.RandomString(), Gen.RandomInt(0, 65535), Gen.RandomEnum<ProxyType>(), Gen.RandomString(), Gen.RandomString())
+                };
+            }
+
+            public static CaptchaResult<CustomTaskResponse> CreateCastleSolution()
+            {
+                return new CaptchaResult<CustomTaskResponse>
+                {
+                    Error = null,
+                    Solution = new CustomTaskResponse
+                    {
+                        Domains = new Dictionary<string, CustomTaskResponse.DomainInfo>
+                        {
+                            {
+                                Gen.RandomString(),
+                                new CustomTaskResponse.DomainInfo()
+                                {
+                                    Cookies = new Dictionary<string, string> { { "__cuid", Gen.RandomGuid() } }
+                                }
+                            }
+                        },
+                        Data = new Dictionary<string, string>
+                        {
+                            { "tokens", Gen.RandomString() }
+                        }
+                    }
+                };
+            }
+
+            public static TspdCustomTaskRequest CreateTspdTask()
+            {
+                return new TspdCustomTaskRequest(Gen.RandomString(), Gen.RandomString())
+                {
+                    WebsiteUrl = Gen.RandomUri().ToString(),
+                    UserAgent = Gen.UserAgent(),
+                    Proxy = new ProxyContainer(Gen.RandomString(), Gen.RandomInt(0, 65535), Gen.RandomEnum<ProxyType>(), Gen.RandomString(), Gen.RandomString())
+                };
+            }
+
+            public static CaptchaResult<CustomTaskResponse> CreateTspdSolution()
+            {
+                return new CaptchaResult<CustomTaskResponse>
+                {
+                    Error = null,
+                    Solution = new CustomTaskResponse
+                    {
+                        Domains = new Dictionary<string, CustomTaskResponse.DomainInfo>
+                        {
+                            {
+                                Gen.RandomString(),
+                                new CustomTaskResponse.DomainInfo()
+                                {
+                                    Cookies = new Dictionary<string, string>
+                                    {
+                                        { "TS386a400d029", Gen.RandomString() },
+                                        { "TS386a400d078", Gen.RandomString() },
+                                        { "TSd2153684027", Gen.RandomString() },
+                                        { "TS00000000076", Gen.RandomString() },
+                                        { "TSPD_101_DID", Gen.RandomString() },
+                                        { "TS386a400d075", Gen.RandomString() }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+
+            public static HuntCustomTaskRequest CreateHuntTask()
+            {
+                return new HuntCustomTaskRequest(Gen.RandomUri().ToString(), Gen.RandomString())
+                {
+                    WebsiteUrl = Gen.RandomUri().ToString(),
+                    UserAgent = Gen.UserAgent(),
+                    Proxy = new ProxyContainer(Gen.RandomString(), Gen.RandomInt(0, 65535), Gen.RandomEnum<ProxyType>(), Gen.RandomString(), Gen.RandomString())
+                };
+            }
+
+            public static CaptchaResult<CustomTaskResponse> CreateHuntSolution()
+            {
+                return new CaptchaResult<CustomTaskResponse>
+                {
+                    Error = null,
+                    Solution = new CustomTaskResponse
+                    {
+                        Data = new Dictionary<string, string>
+                        {
+                            { "token", Gen.RandomString() }
+                        }
+                    }
+                };
+            }
         }
 
         public static class AmazonWaf

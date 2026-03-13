@@ -222,6 +222,42 @@ namespace Zennolab.CapMonsterCloud
                         Timeout = TimeSpan.FromSeconds(180)
                     }
                 },
+                {
+                    typeof(AltchaCustomTaskRequest),
+                    new GetResultTimeouts
+                    {
+                        FirstRequestDelay = TimeSpan.FromSeconds(1),
+                        RequestsInterval  = TimeSpan.FromSeconds(2),
+                        Timeout           = TimeSpan.FromSeconds(50)
+                    }
+                },
+                {
+                    typeof(CastleCustomTaskRequest),
+                    new GetResultTimeouts
+                    {
+                        FirstRequestDelay = TimeSpan.FromSeconds(1),
+                        RequestsInterval  = TimeSpan.FromSeconds(2),
+                        Timeout           = TimeSpan.FromSeconds(60)
+                    }
+                },
+                {
+                    typeof(TspdCustomTaskRequest),
+                    new GetResultTimeouts
+                    {
+                        FirstRequestDelay = TimeSpan.FromSeconds(1),
+                        RequestsInterval  = TimeSpan.FromSeconds(2),
+                        Timeout           = TimeSpan.FromSeconds(60)
+                    }
+                },
+                {
+                    typeof(HuntCustomTaskRequest),
+                    new GetResultTimeouts
+                    {
+                        FirstRequestDelay = TimeSpan.FromSeconds(1),
+                        RequestsInterval  = TimeSpan.FromSeconds(3),
+                        Timeout           = TimeSpan.FromSeconds(180)
+                    }
+                },
             };
     }
 }
