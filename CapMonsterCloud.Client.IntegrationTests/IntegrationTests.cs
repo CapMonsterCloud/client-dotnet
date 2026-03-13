@@ -1249,5 +1249,51 @@ namespace CapMonsterCloud.Client.IntegrationTests
             sut.GetActualRequests().Should().BeEquivalentTo(expectedRequests);
             actual.Should().BeEquivalentTo(expectedResult);
         }
+
+        [Test]
+        public async Task Altcha_ShouldSolve()
+        {
+            var clientKey = Gen.RandomString();
+            var taskId = Gen.RandomInt();
+
+            var captchaRequest = ObjectGen.CustomTask.CreateAltchaTask();
+            var expectedResult = ObjectGen.CustomTask.CreateAltchaSolution();
+
+            var expectedRequests = new List<(RequestType Type, string ExpectedRequest)>
+            {
+                (
+                    Type: RequestType.CreateTask,
+                    ExpectedRequest: JsonConvert.SerializeObject(new
+                        { clientKey = clientKey, task = captchaRequest, softId = 53 })
+                ),
+                (
+                    Type: RequestType.GetTaskResult,
+                    ExpectedRequest: JsonConvert.SerializeObject(new { clientKey = clientKey, taskId = taskId })
+                ),
+            };
+
+            var captchaResults = new List<object>
+            {
+                new { taskId = taskId, errorId = 0, errorCode = (string)null! },
+                new
+                {
+                    status = "ready",
+                    solution = new
+                    {
+                        data = expectedResult.Solution.Data
+                    },
+                    errorId = 0,
+                    errorCode = (string)null!
+                }
+            };
+
+            var sut = new Sut(clientKey);
+            sut.SetupHttpServer(captchaResults);
+
+            var actual = await sut.SolveAsync(captchaRequest);
+
+            sut.GetActualRequests().Should().BeEquivalentTo(expectedRequests);
+            actual.Should().BeEquivalentTo(expectedResult);
+        }
     }
 }
