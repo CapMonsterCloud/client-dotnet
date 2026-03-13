@@ -116,6 +116,9 @@ namespace CapMonsterCloud.Client.IntegrationTests
         public async Task<CaptchaResult<CustomTaskResponse>> SolveAsync(
             CastleCustomTaskRequest request) => await _cloudClient.SolveAsync<CustomTaskResponse>(request);
 
+        public async Task<CaptchaResult<CustomTaskResponse>> SolveAsync(
+            TspdCustomTaskRequest request) => await _cloudClient.SolveAsync<CustomTaskResponse>(request);
+
         public async Task<decimal> GetBalanceAsync()
         {
             return await _cloudClient.GetBalanceAsync();
