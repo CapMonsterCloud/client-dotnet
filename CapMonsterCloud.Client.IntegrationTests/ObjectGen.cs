@@ -585,6 +585,31 @@ namespace CapMonsterCloud.Client.IntegrationTests
                     }
                 };
             }
+
+            public static HuntCustomTaskRequest CreateHuntTask()
+            {
+                return new HuntCustomTaskRequest(Gen.RandomUri().ToString(), Gen.RandomString())
+                {
+                    WebsiteUrl = Gen.RandomUri().ToString(),
+                    UserAgent = Gen.UserAgent(),
+                    Proxy = new ProxyContainer(Gen.RandomString(), Gen.RandomInt(0, 65535), Gen.RandomEnum<ProxyType>(), Gen.RandomString(), Gen.RandomString())
+                };
+            }
+
+            public static CaptchaResult<CustomTaskResponse> CreateHuntSolution()
+            {
+                return new CaptchaResult<CustomTaskResponse>
+                {
+                    Error = null,
+                    Solution = new CustomTaskResponse
+                    {
+                        Data = new Dictionary<string, string>
+                        {
+                            { "token", Gen.RandomString() }
+                        }
+                    }
+                };
+            }
         }
 
         public static class AmazonWaf
