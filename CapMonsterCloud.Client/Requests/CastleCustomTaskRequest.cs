@@ -48,8 +48,7 @@ namespace Zennolab.CapMonsterCloud.Requests
         /// Generation of 1 to 49 Castle tokens bound to the same browser session (with the same __cuid identifier).
         /// If a value greater than 49 is specified, the maximum allowed number of tokens — 49 — will be returned, and the cost will be calculated based on this amount.
         /// </param>
-        public CastleCustomTaskRequest(string wUrl, string swUrl, int? count = null) => Metadata = count.HasValue
-            ? new { wUrl, swUrl, count = count.Value }
-            : (object)new { wUrl, swUrl };
+        public CastleCustomTaskRequest(string wUrl, string swUrl, int count = 1) =>
+            Metadata = new { wUrl, swUrl, count };
     }
 }

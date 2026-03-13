@@ -546,6 +546,45 @@ namespace CapMonsterCloud.Client.IntegrationTests
                     }
                 };
             }
+
+            public static TspdCustomTaskRequest CreateTspdTask()
+            {
+                return new TspdCustomTaskRequest(Gen.RandomString(), Gen.RandomString())
+                {
+                    WebsiteUrl = Gen.RandomUri().ToString(),
+                    UserAgent = Gen.UserAgent(),
+                    Proxy = new ProxyContainer(Gen.RandomString(), Gen.RandomInt(0, 65535), Gen.RandomEnum<ProxyType>(), Gen.RandomString(), Gen.RandomString())
+                };
+            }
+
+            public static CaptchaResult<CustomTaskResponse> CreateTspdSolution()
+            {
+                return new CaptchaResult<CustomTaskResponse>
+                {
+                    Error = null,
+                    Solution = new CustomTaskResponse
+                    {
+                        Domains = new Dictionary<string, CustomTaskResponse.DomainInfo>
+                        {
+                            {
+                                Gen.RandomString(),
+                                new CustomTaskResponse.DomainInfo()
+                                {
+                                    Cookies = new Dictionary<string, string>
+                                    {
+                                        { "TS386a400d029", Gen.RandomString() },
+                                        { "TS386a400d078", Gen.RandomString() },
+                                        { "TSd2153684027", Gen.RandomString() },
+                                        { "TS00000000076", Gen.RandomString() },
+                                        { "TSPD_101_DID", Gen.RandomString() },
+                                        { "TS386a400d075", Gen.RandomString() }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            }
         }
 
         public static class AmazonWaf
