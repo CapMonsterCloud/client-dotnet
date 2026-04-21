@@ -2,7 +2,7 @@
 
 [![NuGet version](https://img.shields.io/nuget/v/Zennolab.CapMonsterCloud.Client)](https://www.nuget.org/packages/Zennolab.CapMonsterCloud.Client)
 
-Official .NET client for creating CAPTCHA tasks and receiving solutions from the CapMonster Cloud API.
+Official .NET SDK for the CapMonster Cloud API.
 
 ## Links
 
@@ -47,16 +47,6 @@ var recaptchaV2Result = await cmCloudClient.SolveAsync(recaptchaV2Request);
 
 Supported task families include reCAPTCHA, GeeTest, Turnstile, image-to-text, and additional task types documented in the public docs.
 
-Additional examples:
-
-    // solve HCaptcha (without proxy)
-    var hcaptchaRequest = new HCaptchaRequest
-    {
-        WebsiteUrl = "https://lessons.zennolab.com/captchas/hcaptcha/?level=easy",
-        WebsiteKey = "472fc7af-86a4-4382-9a49-ca9090474471",
-    };
-    var hcaptchaResult = await cmCloudClient.SolveAsync(hcaptchaRequest);
-
 Supported request classes:
 
 - [GeeTestRequest](https://zenno.link/doc-geetest-proxy-en)
@@ -68,3 +58,15 @@ Supported request classes:
 - [TurnstileRequest](https://zenno.link/doc-turnstile-proxy-en)
 - [RecaptchaComplexImageTaskRequest](https://zenno.link/doc-complextask-rc-en)
 - [HcaptchaComplexImageTaskRequest](https://zenno.link/doc-complextask-hc-en)
+
+Additional examples:
+
+```csharp
+// solve HCaptcha (without proxy)
+var hcaptchaRequest = new HCaptchaRequest
+{
+    WebsiteUrl = "https://lessons.zennolab.com/captchas/hcaptcha/?level=easy",
+    WebsiteKey = "472fc7af-86a4-4382-9a49-ca9090474471",
+};
+var hcaptchaResult = await cmCloudClient.SolveAsync(hcaptchaRequest);
+```
