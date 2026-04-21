@@ -1,42 +1,51 @@
-﻿# Zennolab.CapMonsterCloud.Client
+﻿# CapMonster Cloud .NET client
 
-Official C# client library for [capmonster.cloud](https://capmonster.cloud/) captcha recognition service
+[![NuGet version](https://img.shields.io/nuget/v/Zennolab.CapMonsterCloud.Client)](https://www.nuget.org/packages/Zennolab.CapMonsterCloud.Client)
+
+Official .NET client for creating CAPTCHA tasks and receiving solutions from the CapMonster Cloud API.
+
+## Links
+
+- Package: [Zennolab.CapMonsterCloud.Client on NuGet](https://www.nuget.org/packages/Zennolab.CapMonsterCloud.Client)
+- Documentation: [docs.capmonster.cloud](https://docs.capmonster.cloud/)
+- Dashboard / API key: [dash.capmonster.cloud](https://dash.capmonster.cloud/)
 
 ## Installation
 
-Via Package Manager:
+Package Manager:
 
-    Install-Package Zennolab.CapMonsterCloud.Client
+```powershell
+Install-Package Zennolab.CapMonsterCloud.Client
+```
 
-Via .NET CLI
+.NET CLI:
 
-    dotnet add package Zennolab.CapMonsterCloud.Client
+```bash
+dotnet add package Zennolab.CapMonsterCloud.Client
+```
 
-## Usage
+## Minimal example
 
-    var clientOptions = new ClientOptions
-    {
-        ClientKey = "<your capmonster.cloud API key>"
-    };
+```csharp
+var clientOptions = new ClientOptions
+{
+    ClientKey = "<your capmonster.cloud API key>"
+};
 
-    var cmCloudClient = CapMonsterCloudClientFactory.Create(clientOptions);
+var cmCloudClient = CapMonsterCloudClientFactory.Create(clientOptions);
 
-    // solve RecaptchaV2 (without proxy)
-    var recaptchaV2Request = new RecaptchaV2Request
-    {
-        WebsiteUrl = "https://lessons.zennolab.com/captchas/recaptcha/v2_simple.php?level=high",
-        WebsiteKey = "6Lcg7CMUAAAAANphynKgn9YAgA4tQ2KI_iqRyTwd",
-    };
-    var recaptchaV2Result = await cmCloudClient.SolveAsync(recaptchaV2Request);
+var recaptchaV2Request = new RecaptchaV2Request
+{
+    WebsiteUrl = "https://lessons.zennolab.com/captchas/recaptcha/v2_simple.php?level=high",
+    WebsiteKey = "6Lcg7CMUAAAAANphynKgn9YAgA4tQ2KI_iqRyTwd",
+};
 
-    // solve RecaptchaV2 (with proxy)
-    var recaptchaV2Request = new RecaptchaV2Request
-    {
-        WebsiteUrl = "https://lessons.zennolab.com/captchas/recaptcha/v2_simple.php?level=high",
-        WebsiteKey = "6Lcg7CMUAAAAANphynKgn9YAgA4tQ2KI_iqRyTwd",
-        Proxy = new ProxyContainer("203.0.113.45", 8080, ProxyType.Http, "login", "password")
-    };
-    var recaptchaV2Result = await cmCloudClient.SolveAsync(recaptchaV2Request);
+var recaptchaV2Result = await cmCloudClient.SolveAsync(recaptchaV2Request);
+```
+
+Supported task families include reCAPTCHA, GeeTest, Turnstile, image-to-text, and additional task types documented in the public docs.
+
+Additional examples:
 
     // solve HCaptcha (without proxy)
     var hcaptchaRequest = new HCaptchaRequest
@@ -46,7 +55,7 @@ Via .NET CLI
     };
     var hcaptchaResult = await cmCloudClient.SolveAsync(hcaptchaRequest);
 
-Supported captcha recognition requests:
+Supported request classes:
 
 - [GeeTestRequest](https://zenno.link/doc-geetest-proxy-en)
 - [HCaptchaRequest](https://zenno.link/doc-hcaptcha-proxy-en)
