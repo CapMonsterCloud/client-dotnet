@@ -51,23 +51,14 @@ Supported task families include reCAPTCHA, GeeTest, Turnstile, image-to-text, an
 Supported request classes:
 
 - [GeeTestRequest](https://zenno.link/doc-geetest-proxy-en)
-- [HCaptchaRequest](https://zenno.link/doc-hcaptcha-proxy-en)
 - [ImageToTextRequest](https://zenno.link/doc-ImageToTextTask-en)
 - [RecaptchaV2Request](https://zenno.link/doc-recaptcha2-proxy-en)
 - [RecaptchaV3ProxylessRequest](https://zenno.link/doc-recaptcha3-en)
 - [RecaptchaV2EnterpriseRequest](https://zenno.link/doc-recaptcha2e-proxy-en)
 - [TurnstileRequest](https://zenno.link/doc-turnstile-proxy-en)
 - [RecaptchaComplexImageTaskRequest](https://zenno.link/doc-complextask-rc-en)
-- [HcaptchaComplexImageTaskRequest](https://zenno.link/doc-complextask-hc-en)
 
 Additional examples:
 
 ```csharp
-// solve HCaptcha (without proxy)
-var hcaptchaRequest = new HCaptchaRequest
-{
-    WebsiteUrl = "https://lessons.zennolab.com/captchas/hcaptcha/?level=easy",
-    WebsiteKey = "472fc7af-86a4-4382-9a49-ca9090474471",
-};
-var hcaptchaResult = await cmCloudClient.SolveAsync(hcaptchaRequest);
 ```
