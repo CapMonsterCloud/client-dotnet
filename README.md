@@ -50,15 +50,27 @@ Supported task families include reCAPTCHA, GeeTest, Turnstile, image-to-text, an
 
 Supported request classes:
 
-- [GeeTestRequest](https://zenno.link/doc-geetest-proxy-en)
-- [ImageToTextRequest](https://zenno.link/doc-ImageToTextTask-en)
-- [RecaptchaV2Request](https://zenno.link/doc-recaptcha2-proxy-en)
-- [RecaptchaV3ProxylessRequest](https://zenno.link/doc-recaptcha3-en)
-- [RecaptchaV2EnterpriseRequest](https://zenno.link/doc-recaptcha2e-proxy-en)
-- [TurnstileRequest](https://zenno.link/doc-turnstile-proxy-en)
-- [RecaptchaComplexImageTaskRequest](https://zenno.link/doc-complextask-rc-en)
-
-Additional examples:
-
-```csharp
-```
+- [AltchaCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/altcha-task)
+- [AmazonWafRequest](https://docs.capmonster.cloud/docs/captchas/amazon-task)
+- [BasiliskCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/Basilisk-task)
+- [BinanceTaskRequest](https://docs.capmonster.cloud/docs/captchas/binance)
+- [CastleCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/castle-task)
+- [DataDomeCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/datadome)
+- [FunCaptchaComplexImageTaskRequest](https://docs.capmonster.cloud/docs/captchas/ComplexImageTask-Recognition)
+- [FunCaptchaRequest](https://docs.capmonster.cloud/docs/captchas/funcaptcha-task)
+- [GeeTestRequest](https://docs.capmonster.cloud/docs/captchas/geetest-task)
+- [HuntCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/hunt-task)
+- [ImageToTextRequest](https://docs.capmonster.cloud/docs/captchas/image-to-text)
+- [ImpervaCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/incapsula)
+- [MTCaptchaTaskRequest](https://docs.capmonster.cloud/docs/captchas/mtcaptcha-task)
+- [ProsopoTaskRequest](https://docs.capmonster.cloud/docs/captchas/prosopo-task)
+- [RecaptchaComplexImageTaskRequest](https://docs.capmonster.cloud/docs/captchas/recaptcha-click)
+- [RecaptchaV2EnterpriseRequest](https://docs.capmonster.cloud/docs/captchas/recaptcha-v2-enterprise-task)
+- [RecaptchaV2Request](https://docs.capmonster.cloud/docs/captchas/no-captcha-task)
+- [RecaptchaV3ProxylessRequest](https://docs.capmonster.cloud/docs/captchas/recaptcha-v3-task)
+- [RecognitionComplexImageTaskRequest](https://docs.capmonster.cloud/docs/captchas/ComplexImageTask-Recognition)
+- [TemuCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/temu-task)
+- [TenDiCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/tendi)
+- [TspdCustomTaskRequest](https://docs.capmonster.cloud/docs/captchas/tspd-task)
+- [TurnstileRequest](https://docs.capmonster.cloud/docs/captchas/turnstile-task)
+- [YidunTaskRequest](https://docs.capmonster.cloud/docs/captchas/yidun-task)
