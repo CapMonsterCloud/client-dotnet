@@ -1,5 +1,10 @@
 # Zennolab.CapMonsterCloud.Client
 
+> [!WARNING]  
+> **DEPRECATED / УСТАРЕЛО**  
+> This repository is no longer maintained. Please use our new, official .NET / C# SDK repository:  
+> 👉 **[CapMonsterCloud/capmonster-dotnet-captcha-solver](https://github.com/CapMonsterCloud/capmonster-dotnet-captcha-solver)**
+
 Official C# client library for [capmonster.cloud](https://capmonster.cloud/) captcha recognition service
 
 ## Installation
